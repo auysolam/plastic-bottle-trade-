@@ -52,29 +52,32 @@ class Store {
         this.init();
     }
 
-    async init() {
-        // Create document if it doesn't exist
-        const snapshot = await this.docRef.get();
-        if (!snapshot.exists) {
-            await this.docRef.set(INITIAL_STATE);
-        }
-
-        // Setup Realtime Listener
-        this.docRef.onSnapshot((doc) => {
-            if (doc.exists) {
-                this.data = doc.data();
-                this.isLoaded = true;
-                
-                // Notify UI to re-render
-                this.notifyListeners();
-                
-                // Keep compatibility with BroadcastChannel for older parts of the app
-                if (typeof BroadcastChannel !== 'undefined') {
-                    if (!this.bc) this.bc = new BroadcastChannel('recyclehub_sync');
-                    this.bc.postMessage({ type: 'DATA_UPDATED' });
+    init() {
+        // Setup Realtime Listener - catches permission errors!
+        this.docRef.onSnapshot(
+            (doc) => {
+                if (doc.exists) {
+                    this.data = doc.data();
+                    this.isLoaded = true;
+                    this.notifyListeners();
+                    
+                    if (typeof BroadcastChannel !== 'undefined') {
+                        if (!this.bc) this.bc = new BroadcastChannel('recyclehub_sync');
+                        this.bc.postMessage({ type: 'DATA_UPDATED' });
+                    }
+                } else {
+                    // Document doesn't exist yet, create it
+                    this.docRef.set(INITIAL_STATE).catch(err => {
+                        console.error(err);
+                        alert("สร้างฐานข้อมูลไม่ได้ (ตั้งค่า Rules ของ Firebase ผิดหรือเปล่า?): " + err.message);
+                    });
                 }
+            },
+            (error) => {
+                console.error("Firebase Listener Error:", error);
+                alert("เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล! (กรุณาไปตั้งค่า Rules ใน Firebase -> allow read, write: if true;)\n\n" + error.message);
             }
-        });
+        );
     }
 
     subscribe(callback) {
@@ -87,10 +90,16 @@ class Store {
 
     saveData() {
         // Prevent saving if not fully loaded yet
-        if (!this.isLoaded) return;
+        if (!this.isLoaded) {
+            console.warn("Attempted to save data before store was loaded.");
+            alert("ฐานข้อมูลยังเชื่อมต่อไม่สำเร็จ หรือถูกบล็อกสิทธิ์การเข้าถึง โปรดรีเฟรชหน้าเว็บแล้วลองใหม่ครับ");
+            return false;
+        }
         this.docRef.set(this.data, { merge: true }).catch(err => {
             console.error("Error saving data to Firebase:", err);
+            alert("บันทึกข้อมูลไม่สำเร็จ (สิทธิ์ไม่พียงพอ หรือ มีรูปภาพขนาดใหญ่เกิน 1MB): " + err.message);
         });
+        return true;
     }
 
     getPrices() { 
@@ -244,8 +253,8 @@ class Store {
         request.id = Date.now().toString();
         request.status = 'pending';
         this.data.requests.push(request);
-        this.saveData();
-        return request;
+        const success = this.saveData();
+        return success ? request : null;
     }
     updateRequestStatus(id, status) {
         if (!this.data.requests) this.data.requests = [];

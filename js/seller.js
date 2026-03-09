@@ -257,14 +257,42 @@ document.addEventListener('DOMContentLoaded', () => {
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    capturedPhotoDataUrl = event.target.result;
-                    if (photoPreview) {
-                        photoPreview.src = capturedPhotoDataUrl;
-                        photoPreview.style.display = 'block';
-                    }
-                    if (photoPlaceholder) {
-                        photoPlaceholder.style.opacity = '0'; // hide placeholder text
-                    }
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 800;
+                        const MAX_HEIGHT = 800;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > MAX_WIDTH) {
+                                height *= MAX_WIDTH / width;
+                                width = MAX_WIDTH;
+                            }
+                        } else {
+                            if (height > MAX_HEIGHT) {
+                                width *= MAX_HEIGHT / height;
+                                height = MAX_HEIGHT;
+                            }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Compress image to ensure it fits in Firestore limits (1MB max document size)
+                        capturedPhotoDataUrl = canvas.toDataURL('image/jpeg', 0.6); 
+                        
+                        if (photoPreview) {
+                            photoPreview.src = capturedPhotoDataUrl;
+                            photoPreview.style.display = 'block';
+                        }
+                        if (photoPlaceholder) {
+                            photoPlaceholder.style.opacity = '0'; // hide placeholder text
+                        }
+                    };
+                    img.src = event.target.result;
                 };
                 reader.readAsDataURL(file);
             } else {
@@ -306,7 +334,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 photo: capturedPhotoDataUrl
             };
 
-            db.addRequest(requestData);
+            const savedRequest = db.addRequest(requestData);
+            
+            if (!savedRequest) {
+                return; // Failed to save, the store already alerted the reason
+            }
             
             alert('ส่งคำร้องสำเร็จ! รอเจ้าหน้าที่ติดต่อกลับ');
             sellForm.reset();

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Firebase Testing</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+<body>
+    <h2>Firebase Status Test</h2>
+    <div id="output" style="font-family: monospace; padding: 20px; background: #f0f0f0; border: 1px solid #ccc; white-space: pre-wrap;">Initializing...</div>
+
+    <script>
+        const firebaseConfig = {
+          apiKey: "AIzaSyCg9st5AQQQi81qHLhPswRf62H4VKLQZao",
+          authDomain: "recyclehub-21cac.firebaseapp.com",
+          projectId: "recyclehub-21cac",
+          storageBucket: "recyclehub-21cac.firebasestorage.app",
+          messagingSenderId: "399507336057",
+          appId: "1:399507336057:web:4d8f295d1eae1cdcc9dda8"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db_fs = firebase.firestore();
+        const output = document.getElementById('output');
+
+        function log(msg) {
+            output.innerHTML += '\n' + msg;
+            console.log(msg);
+        }
+
+        async function testDb() {
+            try {
+                log("Attempting to read from Firestore...");
+                const docRef = db_fs.collection('appData').doc('mainStore');
+                const docSnap = await docRef.get();
+                
+                if (docSnap.exists) {
+                    log("SUCCESS! Document exists. Data snippet: " + JSON.stringify(docSnap.data()).substring(0, 50) + "...");
+                } else {
+                    log("SUCCESS (Read), but document does NOT exist yet. Attempting to write INITIAL_STATE...");
+                    await docRef.set({ text: "Hello from test!" });
+                    log("SUCCESS (Write)! Document created.");
+                }
+            } catch (error) {
+                log("ERROR: " + error.message);
+                log("This usually means Firestore Rules are denying access. You need to go to Firebase Console -> Firestore Database -> Rules and set them to test mode (allow read, write: if true;)");
+            }
+        }
+
+        testDb();
+    </script>
+</body>
+</html>
