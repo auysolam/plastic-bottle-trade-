@@ -572,14 +572,63 @@ body[data-theme="loykrathong"] .weather-card {
     to { transform: rotate(360deg); }
 }
 
+.weather-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.weather-current-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.weather-hourly-list {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 5px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+}
+.weather-hourly-list::-webkit-scrollbar {
+    display: none;
+}
+.hourly-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 75px;
+    padding: 12px 10px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.05);
+    flex-shrink: 0;
+}
+.hourly-item.is-now {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: var(--primary);
+}
+
 @media (max-width: 480px) {
     .weather-card {
+        padding: 15px;
+    }
+    .weather-current-row {
         flex-direction: column;
+        justify-content: center;
         text-align: center;
-        gap: 15px;
+    }
+    .weather-main {
+        flex-direction: column;
+        gap: 5px !important;
     }
     .weather-details {
-        text-align: center;
+        text-align: center !important;
+        margin-top: 5px;
     }
 }
 

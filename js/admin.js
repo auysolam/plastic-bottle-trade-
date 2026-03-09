@@ -459,10 +459,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             const isNow = count === 0;
                             
                             hourlyHtml += `
-                                <div style="display: flex; flex-direction: column; align-items: center; min-width: 65px; padding: 10px; background: ${isNow ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.4)'}; border-radius: 8px; border: 1px solid ${isNow ? 'var(--primary)' : 'rgba(0,0,0,0.05)'}; flex-shrink: 0;">
+                                <div class="hourly-item ${isNow ? 'is-now' : ''}">
                                     <div style="font-size: 0.85rem; color: #555; font-weight: ${isNow ? 'bold' : 'normal'};">${isNow ? 'ตอนนี้' : ('0' + h).slice(-2) + ':00'}</div>
                                     <div style="font-size: 1.5rem; margin: 5px 0;">${hrInfo.icon}</div>
-                                    <div style="font-weight: bold; font-size: 0.95rem;">${Math.round(temps[i])}°</div>
+                                    <div style="font-weight: bold; font-size: 1rem;">${Math.round(temps[i])}°</div>
                                     <div style="font-size: 0.75rem; color: ${p > 20 ? 'var(--primary)' : '#888'}; margin-top: 3px;" title="โอกาสฝนตก">💧 ${p}%</div>
                                 </div>
                             `;
@@ -472,21 +472,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 weatherWidget.innerHTML = `
-                    <div style="display: flex; flex-direction: column; gap: 15px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                            <div class="weather-main" style="margin: 0; padding: 0; background: none; box-shadow: none; display: flex; align-items: center; gap: 15px;">
-                                <div class="weather-icon" style="font-size: 3rem; line-height: 1;">${weatherInfo.icon}</div>
+                    <div class="weather-wrapper">
+                        <div class="weather-current-row">
+                            <div class="weather-main" style="display: flex; align-items: center; gap: 15px;">
+                                <div class="weather-icon" style="font-size: 3.5rem; line-height: 1;">${weatherInfo.icon}</div>
                                 <div class="weather-info">
-                                    <h3 style="margin: 0; font-size: 2rem; line-height: 1;">${weather.temperature}°C</h3>
-                                    <p style="margin: 5px 0 0 0; color: #555;">${weatherInfo.text}</p>
+                                    <h3 style="margin: 0; font-size: 2.2rem; line-height: 1;">${weather.temperature}°C</h3>
+                                    <p style="margin: 5px 0 0 0; color: #555; font-size: 1.1rem;">${weatherInfo.text}</p>
                                 </div>
                             </div>
-                            <div class="weather-details" style="margin: 0; padding: 0; background: none; border: none; text-align: right;">
-                                <div class="weather-city" style="font-weight: bold; font-size: 0.95rem;">📍 ${cityName || 'ตำแหน่งปัจจุบันของคุณ'}</div>
-                                <div class="weather-date" style="color: #666; font-size: 0.85rem;">${date}</div>
+                            <div class="weather-details" style="text-align: right;">
+                                <div class="weather-city" style="font-weight: bold; font-size: 1rem;">📍 ${cityName || 'ตำแหน่งปัจจุบันของคุณ'}</div>
+                                <div class="weather-date" style="color: #666; font-size: 0.9rem;">${date}</div>
                             </div>
                         </div>
-                        <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: thin;">
+                        <div class="weather-hourly-list">
                             ${hourlyHtml}
                         </div>
                     </div>
