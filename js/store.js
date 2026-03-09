@@ -12,17 +12,6 @@ const firebaseConfig = {
   measurementId: "G-2FS27V1XF7"
 };
 
-// Initialize Firebase immediately
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-let db_fs; // Will be initialized in Store constructor or immediately if ready
-try {
-    db_fs = firebase.firestore();
-} catch (e) {
-    console.error("Firebase init failed early:", e);
-}
-
 const INITIAL_STATE = {
     theme: 'default',
     prices: {
@@ -50,21 +39,35 @@ const INITIAL_STATE = {
 class Store {
     constructor() {
         this.data = { ...INITIAL_STATE };
-        if (!db_fs) {
-            try { db_fs = firebase.firestore(); } 
-            catch(e) { console.error("Could not init firestore in constructor", e); }
-        }
-        
-        if (db_fs) {
-            this.docRef = db_fs.collection('appData').doc('mainStore');
-            this.init();
-        } else {
-            alert("ระบบฐานข้อมูลไม่พร้อมทำงาน กรุณารีเฟรชหน้าเว็บ");
-        }
-        
         this.isLoaded = false;
         this.loadError = null;
         this.listeners = [];
+        this.docRef = null;
+
+        // Start initialization process, waiting for Firebase if needed
+        this.waitForFirebaseAndInit();
+    }
+
+    waitForFirebaseAndInit(attempts = 0) {
+        if (typeof firebase !== 'undefined') {
+            try {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                const db_fs = firebase.firestore();
+                this.docRef = db_fs.collection('appData').doc('mainStore');
+                this.init();
+            } catch (e) {
+                console.error("Firebase init failed:", e);
+                alert("บอทเชื่อมต่อฐานข้อมูลล้มเหลว กรุณารีเฟรชหน้าเว็บ");
+            }
+        } else {
+            if (attempts < 20) { // Wait up to 10 seconds
+                setTimeout(() => this.waitForFirebaseAndInit(attempts + 1), 500);
+            } else {
+                alert("ระบบฐานข้อมูล (Firebase) โหลดไม่ขึ้น โปรดตรวจสอบอินเทอร์เน็ตหรือเปิดเว็บผ่านแอปเบราว์เซอร์ปกติ");
+            }
+        }
     }
 
     init() {
