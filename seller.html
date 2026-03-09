@@ -134,11 +134,29 @@
                 </form>
             </section>
 
-            <!-- Status Indicator -->
+            <!-- Status Indicator (Waiting for Pickup) -->
             <section id="status-card" class="card status-card hidden">
-                <div class="status-indicator ready">
+                <div class="waiting-illustration">🚚</div>
+                <h3 class="waiting-title">รอรถไปรับสินค้า</h3>
+                <div class="status-indicator">
                     <div class="pulse-ring"></div>
-                    <span>สถานะปัจจุบัน: <strong>พร้อมขาย/รอรับ</strong></span>
+                    <span>สถานะ: <strong>รับเรื่องแล้ว กำลังจัดคิว</strong></span>
+                </div>
+                
+                <div class="waiting-instructions">
+                    <h4 style="color:#b45309; margin-bottom:10px; display:flex; align-items:center; gap:5px;">
+                        <span>💡</span> โปรดเตรียมสินค้าให้พร้อม
+                    </h4>
+                    <p style="margin:0; color:#475569; font-size:0.95rem;">
+                        เพื่อความรวดเร็วในการรับสินค้า รบกวนคุณลูกค้า **จัดเตรียมและคัดแยกขวด** ใส่ถุงหรือภาชนะรอไว้ให้เรียบร้อยนะครับ 🙏
+                    </p>
+                </div>
+
+                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px dashed #cbd5e1;">
+                    <p style="color:#64748b; font-size:0.9rem; margin-bottom:5px;">หากเจ้าหน้าที่ไม่ติดต่อกลับ หรือต้องการสอบถามเพิ่มเติม</p>
+                    <a href="tel:0656236006" class="contact-box">
+                        <i>📞</i> โทรสายด่วน: 065-6236006
+                    </a>
                 </div>
             </section>
         </main>

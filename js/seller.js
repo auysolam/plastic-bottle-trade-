@@ -189,15 +189,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function checkPendingRequest() {
-        // Simplified check: if there's any pending request, show status
-        // Let's filter by userId
         const requests = db.getRequests();
         const hasPending = requests.some(r => r.status === 'pending' && (!r.userId || r.userId === currentUser.userId));
         
+        const formCard = document.querySelector('.sell-form-card');
+        
         if (hasPending && statusCard) {
             statusCard.classList.remove('hidden');
+            if (formCard) formCard.classList.add('hidden');
         } else if(statusCard) {
             statusCard.classList.add('hidden');
+            if (formCard) formCard.classList.remove('hidden');
         }
     }
 
