@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ผู้ขาย - RecycleHub</title>
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <nav class="navbar">
+            <a href="index.html" class="back-btn">←</a>
+            <div class="nav-logo">
+                <img src="logo.png" alt="RecycleHub Logo" class="nav-logo-img">
+                <span>Recycle<span class="highlight">Hub</span></span>
+            </div>
+            <div class="user-profile" id="user-profile-display" style="display:flex; align-items:center; gap:8px;">
+                <img id="profile-img" src="" style="width:32px; height:32px; border-radius:50%; display:none; object-fit:cover;">
+                <span id="profile-name" style="font-size:0.9rem; font-weight:500; display:none; max-width:100px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></span>
+                <span id="user-points" class="points-badge">0 แต้ม</span>
+            </div>
+        </nav>
+
+        <main class="content">
+            <!-- Market Info Card -->
+            <section class="card market-info glass">
+                <div class="card-header">
+                    <h3>ราคารับซื้อวันนี้</h3>
+                </div>
+                <div class="price-grid" id="price-list">
+                    <!-- Loaded via JS -->
+                </div>
+            </section>
+
+            <!-- Recycling Guide -->
+            <section class="card recycling-guide glass">
+                <div class="card-header">
+                    <h3>💡 เกร็ดความรู้: การคัดแยกขวด</h3>
+                </div>
+                <div class="guide-grid">
+                    <div class="guide-item">
+                        <div class="guide-icon">💎</div>
+                        <div class="guide-content">
+                            <h4>ขวดใส (PET)</h4>
+                            <p>ขวดพลาสติกใส มองทะลุได้ <strong>ราคาสูงที่สุด</strong></p>
+                            <p><small>ตัวอย่าง: ขวดน้ำเปล่า, ขวดน้ำอัดลม, ขวดน้ำมันพืช</small></p>
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <div class="guide-icon">☁️</div>
+                        <div class="guide-content">
+                            <h4>ขวดสี / ขวดขุ่น (HDPE/PP)</h4>
+                            <p>พลาสติกทึบแสง หรือมีสีสัน</p>
+                            <p><small>ตัวอย่าง: ขวดนม, ขวดแชมพู, ขวดนมเปรี้ยว, ขวดน้ำยาซักผ้า</small></p>
+                        </div>
+                    </div>
+                    <div class="guide-item">
+                        <div class="guide-icon">♻️</div>
+                        <div class="guide-content">
+                            <h4>ขวดรวม / อื่นๆ</h4>
+                            <p>ขวดที่ไม่ได้แยกประเภท หรือพลาสติกประเภทอื่นๆ</p>
+                            <p><small>ตัวอย่าง: แก้วน้ำพลาสติก, บรรจุภัณฑ์รวม</small></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Rewards Section -->
+            <section class="card rewards-section">
+                <div class="card-header">
+                    <h3>ของรางวัลที่แลกได้</h3>
+                </div>
+                <div class="rewards-grid" id="rewards-list">
+                    <!-- Loaded via JS -->
+                </div>
+            </section>
+
+            <!-- Sell Request Form -->
+            <section class="card sell-form-card">
+                <div class="card-header">
+                    <h3>แจ้งขายขวดพลาสติก</h3>
+                </div>
+                <form id="sell-form" class="form">
+                    <div class="form-group">
+                        <label>ชื่อผู้ขาย</label>
+                        <input type="text" id="seller-name" required placeholder="ชื่อของคุณ">
+                    </div>
+                    <div class="form-group">
+                        <label>เบอร์โทรศัพท์</label>
+                        <input type="tel" id="seller-phone" required placeholder="08X-XXX-XXXX">
+                    </div>
+                    <div class="form-group">
+                        <label>วันที่ให้ไปรับ</label>
+                        <input type="date" id="pickup-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ช่วงเวลา</label>
+                        <select id="pickup-time" required>
+                            <option value="">เลือกเวลา</option>
+                            <option value="morning">เช้า (09:00 - 12:00)</option>
+                            <option value="afternoon">บ่าย (12:00 - 16:00)</option>
+                            <option value="evening">เย็น (16:00 - 19:00)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>ประเภทหลักที่มี</label>
+                        <select id="bottle-type" required>
+                            <option value="clear">ขวดใส (PET)</option>
+                            <option value="color">ขวดสี/ขุ่น</option>
+                            <option value="mixed">รวมๆ กัน</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>ภาพถ่ายสินค้า (ถ้ามี)</label>
+                        <div class="file-upload-wrapper" style="position: relative; display: flex; align-items: center; justify-content: center; border: 2px dashed #28a745; border-radius: 8px; padding: 20px; text-align: center; background: #f8fff9; cursor: pointer; transition: background 0.3s; overflow: hidden; min-height: 120px;">
+                            <input type="file" id="item-photo" accept="image/*" capture="environment" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2;">
+                            <div id="photo-placeholder" style="z-index: 1;">
+                                <div style="font-size: 2rem; color: #28a745; margin-bottom: 5px;">📸</div>
+                                <span style="color: #555; font-weight: 500;">แตะเพื่อถ่ายรูปสินค้า</span>
+                            </div>
+                            <img id="photo-preview" src="" style="display: none; width: 100%; height: 100%; object-fit: cover; position: absolute; left: 0; top: 0; z-index: 1;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>พิกัดรับของ (GPS)</label>
+                        <div class="location-group">
+                            <input type="text" id="location-display" readonly placeholder="ยังไม่ได้ดึงตำแหน่ง" required>
+                            <button type="button" id="get-location-btn" class="btn btn-secondary">ดึงตำแหน่งปัจจุบัน</button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">ส่งคำร้องขาย</button>
+                </form>
+            </section>
+
+            <!-- Status Indicator -->
+            <section id="status-card" class="card status-card hidden">
+                <div class="status-indicator ready">
+                    <div class="pulse-ring"></div>
+                    <span>สถานะปัจจุบัน: <strong>พร้อมขาย/รอรับ</strong></span>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="js/store.js"></script>
+    <script src="js/seller.js"></script>
+</body>
+</html>
