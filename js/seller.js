@@ -227,19 +227,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleLocationError(noSupport = false) {
-        let msg = noSupport ? "เบราว์เซอร์ไม่รองรับดึงตำแหน่ง (หรืออาจจะไม่ได้รันเว็บผ่าน HTTPS ลิงก์ที่ปลอดภัย)" : "ไม่สามารถดึงได้ (อาจเพราะไม่ได้เปิด GPS หรือเบราว์เซอร์บล็อกไว้)";
-        msg += "\n\nต้องการใช้ 'พิกัดจำลอง' (Mock Location) เพื่อทดสอบระบบต่อไปหรือไม่?";
-        
-        if(confirm(msg)) {
-            // สุ่มพิกัดแถวๆ กรุงเทพฯ สำหรับทดสอบ
-            currentLat = 13.7563 + ((Math.random() - 0.5) * 0.05);
-            currentLng = 100.5018 + ((Math.random() - 0.5) * 0.05);
-            locationDisplay.value = `${currentLat.toFixed(5)}, ${currentLng.toFixed(5)}`;
-            locationDisplay.classList.add('border-success');
-        } else {
-            locationDisplay.value = "";
-            locationDisplay.removeAttribute('readonly'); // ปล่อยให้พิมพ์เอง
-        }
+        let msg = noSupport ? "เบราว์เซอร์ไม่รองรับดึงตำแหน่ง (หรืออาจจะไม่ได้รันเว็บผ่าน HTTPS ลิงก์ที่ปลอดภัย)" : "ไม่สามารถดึงตำแหน่งได้ (กรุณาเปิด GPS และอนุญาตให้เข้าถึงตำแหน่ง)";
+        alert(msg);
+        locationDisplay.value = "";
+        locationDisplay.removeAttribute('readonly'); // ปล่อยให้พิมพ์เอง
+        locationDisplay.placeholder = "ไม่สามารถดึง GPS ได้ โปรดพิมพ์ที่อยู่ด้วยตนเอง";
     }
 
     // --- Form Submission ---

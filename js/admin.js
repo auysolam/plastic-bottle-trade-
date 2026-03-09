@@ -303,22 +303,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         },
                         (error) => {
                             console.error(error);
-                            if(confirm("ไม่สามารถดึงตำแหน่งผู้ซื้อได้ ต้องการใช้พิกัดจำลอง (กรุงเทพฯ) หรือไม่?")) {
-                                autoRouteBtn.textContent = '🚗 จัดแผนรับของอัตโนมัติ';
-                                enableSmartRoute(13.7563, 100.5018);
-                            } else {
-                                autoRouteBtn.textContent = '🚗 จัดแผนรับของอัตโนมัติ';
-                            }
+                            alert("ไม่สามารถดึงตำแหน่งผู้รับซื้อได้ กรุณาเปิด GPS และอนุญาตการเข้าถึง");
+                            autoRouteBtn.textContent = '🚗 จัดแผนรับของอัตโนมัติ';
                         },
                         { enableHighAccuracy: true, timeout: 5000 }
                     );
                 } else {
-                    if(confirm("เบราว์เซอร์ไม่รองรับดึงพิกัด ต้องการใช้พิกัดจำลอง (กรุงเทพฯ) หรือไม่?")) {
-                        autoRouteBtn.textContent = '🚗 จัดแผนรับของอัตโนมัติ';
-                        enableSmartRoute(13.7563, 100.5018);
-                    } else {
-                        autoRouteBtn.textContent = '🚗 จัดแผนรับของอัตโนมัติ';
-                    }
+                    alert("เบราว์เซอร์ของคุณไม่รองรับการดึงพิกัด GPS");
+                    autoRouteBtn.textContent = '🚗 จัดแผนรับของอัตโนมัติ';
                 }
             });
         }
@@ -413,13 +405,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 (error) => {
                     console.error("Weather Geolocation Error:", error);
-                    // Default to Bangkok if blocked
-                    fetchWeather(13.7563, 100.5018, "กรุงเทพมหานคร (พิกัดจำลอง)");
+                    weatherWidget.innerHTML = `<p class="text-muted" style="padding:20px; text-align:center;">ไม่สามารถพยากรณ์อากาศได้ กรุณาเปิด GPS</p>`;
                 },
                 { timeout: 10000 }
             );
         } else {
-            fetchWeather(13.7563, 100.5018, "กรุงเทพมหานคร (พิกัดจำลอง)");
+            weatherWidget.innerHTML = `<p class="text-muted" style="padding:20px; text-align:center;">เบราว์เซอร์ของคุณไม่รองรับการดึงพิกัด GPS</p>`;
         }
     }
 
