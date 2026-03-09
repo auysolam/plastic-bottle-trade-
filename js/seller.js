@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    const LIFF_ID = ""; // TODO: ใส่ LIFF ID ของคุณที่นี่ (เว้นว่างไว้เพื่อจำลองการ Login)
+    const LIFF_ID = "2009372777-hgdgiWRi"; // TODO: ใส่ LIFF ID ของคุณที่นี่ (เว้นว่างไว้เพื่อจำลองการ Login)
     let currentUser = null;
 
     // --- References ---
