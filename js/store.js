@@ -43,6 +43,11 @@ class Store {
 
     saveData(data = this.data) {
         localStorage.setItem('recyclehub_data', JSON.stringify(data));
+        // Notify other tabs that data has changed
+        if (typeof BroadcastChannel !== 'undefined') {
+            if (!this.bc) this.bc = new BroadcastChannel('recyclehub_sync');
+            this.bc.postMessage({ type: 'DATA_UPDATED' });
+        }
     }
 
     getPrices() { 

@@ -96,6 +96,18 @@ document.addEventListener('DOMContentLoaded', () => {
         init();
     }
 
+    // Listen for data updates from other tabs
+    if (typeof BroadcastChannel !== 'undefined') {
+        const bc = new BroadcastChannel('recyclehub_sync');
+        bc.onmessage = (event) => {
+            if (event.data && event.data.type === 'DATA_UPDATED') {
+                db.data = db.loadData(); // Force reload from localStorage
+                renderRequests();
+                renderRedemptions();
+            }
+        };
+    }
+
     // --- Dashboard: Request List ---
     function renderRequests() {
         if (!requestListContainer) return;
