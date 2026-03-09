@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h2 style="color:var(--text-main); font-family:var(--font-family);">RecycleHub</h2>
                 <p style="color:var(--text-muted); margin-bottom:24px;">กรุณาเข้าสู่ระบบผ่านบัญชี LINE</p>
                 <button id="liff-login-btn" class="btn btn-primary w-100" style="background-color:#06C755; color:white; max-width:300px; font-weight:700;">เข้าสู่ระบบด้วย LINE</button>
+                <button id="liff-mock-btn" class="btn btn-outline w-100 mt-3" style="max-width:300px;">ข้าม / ทดลองใช้งาน</button>
                 ${!LIFF_ID ? '<p style="color:var(--danger); margin-top:15px; font-size: 0.9rem;">⚠️ ระบบยังไม่ได้ตั้งค่า LIFF ID สำหรับใช้งาน LINE Login</p>' : ''}
             </div>
         `;
@@ -68,6 +69,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert("เกิดข้อผิดพลาด: ผู้ดูแลระบบยังไม่ได้ตั้งค่า LIFF ID\n\n(สำหรับผู้ดูแลระบบ: กรุณาแก้ไขไฟล์ js/seller.js บรรทัดที่ 8 เพื่อใส่ LIFF_ID)");
             }
         });
+
+        document.getElementById('liff-mock-btn').addEventListener('click', () => {
+            loginOverlay.remove();
+            simulateLiffLogin();
+        });
+    }
+
+    function simulateLiffLogin() {
+        const storedMockId = "U_mock_" + Math.floor(Math.random() * 100000);
+        const mockProfile = {
+            userId: storedMockId,
+            displayName: "ผู้เยี่ยมชม (ทดลอง)",
+            pictureUrl: "https://via.placeholder.com/32/10b981/ffffff?text=U"
+        };
+        handleUserLogin(mockProfile);
     }
 
     function handleUserLogin(profile) {
