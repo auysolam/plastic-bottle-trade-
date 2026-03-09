@@ -12,12 +12,16 @@ const firebaseConfig = {
   measurementId: "G-2FS27V1XF7"
 };
 
-// Initialize Firebase
+// Initialize Firebase immediately
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
-
-const db_fs = firebase.firestore();
+let db_fs; // Will be initialized in Store constructor or immediately if ready
+try {
+    db_fs = firebase.firestore();
+} catch (e) {
+    console.error("Firebase init failed early:", e);
+}
 
 const INITIAL_STATE = {
     theme: 'default',
@@ -46,13 +50,24 @@ const INITIAL_STATE = {
 class Store {
     constructor() {
         this.data = { ...INITIAL_STATE };
-        this.docRef = db_fs.collection('appData').doc('mainStore');
+        if (!db_fs) {
+            try { db_fs = firebase.firestore(); } 
+            catch(e) { console.error("Could not init firestore in constructor", e); }
+        }
+        
+        if (db_fs) {
+            this.docRef = db_fs.collection('appData').doc('mainStore');
+            this.init();
+        } else {
+            alert("ระบบฐานข้อมูลไม่พร้อมทำงาน กรุณารีเฟรชหน้าเว็บ");
+        }
+        
         this.isLoaded = false;
         this.listeners = [];
-        this.init();
     }
 
     init() {
+        if (!this.docRef) return;
         // Setup Realtime Listener - catches permission errors!
         this.docRef.onSnapshot(
             (doc) => {
