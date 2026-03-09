@@ -63,6 +63,7 @@ class Store {
         }
         
         this.isLoaded = false;
+        this.loadError = null;
         this.listeners = [];
     }
 
@@ -100,6 +101,7 @@ class Store {
                 }
             },
             (error) => {
+                this.loadError = error.message;
                 clearTimeout(initialLoadTimeout);
                 console.error("Firebase Listener Error:", error);
                 alert("เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล! (กรุณาไปตั้งค่า Rules ใน Firebase -> allow read, write: if true;)\n\n" + error.message);
@@ -118,8 +120,12 @@ class Store {
     saveData() {
         // Prevent saving if not fully loaded yet
         if (!this.isLoaded) {
-            console.warn("Attempted to save data before store was loaded.");
-            alert("ฐานข้อมูลยังเชื่อมต่อไม่สำเร็จ หรือถูกบล็อกสิทธิ์การเข้าถึง โปรดรีเฟรชหน้าเว็บแล้วลองใหม่ครับ");
+            if (this.loadError) {
+                alert("บันทึกไม่ได้ เนื่องจากฐานข้อมูลถูกปฏิเสธสิทธิ์ (Firebase Rules = false):\n\n" + this.loadError);
+            } else {
+                console.warn("Attempted to save data before store was loaded.");
+                alert("ฐานข้อมูลยังเชื่อมต่อไม่สำเร็จ หรือถูกบล็อกสิทธิ์การเข้าถึง โปรดรีเฟรชหน้าเว็บแล้วลองใหม่ครับ");
+            }
             return false;
         }
         this.docRef.set(this.data, { merge: true }).catch(err => {
