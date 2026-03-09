@@ -1,11 +1,28 @@
 /**
- * Mock Store to simulate a Database using localStorage
+ * Firebase Realtime Sync Store
  */
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCg9st5AQQQi81qHLhPswRf62H4VKLQZao",
+  authDomain: "recyclehub-21cac.firebaseapp.com",
+  projectId: "recyclehub-21cac",
+  storageBucket: "recyclehub-21cac.firebasestorage.app",
+  messagingSenderId: "399507336057",
+  appId: "1:399507336057:web:4d8f295d1eae1cdcc9dda8",
+  measurementId: "G-2FS27V1XF7"
+};
+
+// Initialize Firebase
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+const db_fs = firebase.firestore();
 
 const INITIAL_STATE = {
     theme: 'default',
     prices: {
-        clear: 15.00, // บาทต่อกิโลกรัม
+        clear: 15.00,
         color: 8.50,
         mixed: 5.00
     },
@@ -15,39 +32,65 @@ const INITIAL_STATE = {
         { id: 3, name: 'กระติกน้ำเก็บอุณหภูมิ', cost: 500, icon: '🥤', type: 'icon' }
     ],
     redemptions: [],
-    currentUserPoints: 500, // default testing points
-    userProfiles: {}, // { [userId]: { lineName, pictureUrl, phone, points: 0 } }
+    currentUserPoints: 500,
+    userProfiles: {}, 
     requests: [],
-    // Example request: { id, name, phone, date, time, type, location: {lat, lng}, status: 'pending' }
     inventory: {
         clear: { stock: 0, cost: 0, sold: 0, revenue: 0, bought: 0 },
         color: { stock: 0, cost: 0, sold: 0, revenue: 0, bought: 0 },
         mixed: { stock: 0, cost: 0, sold: 0, revenue: 0, bought: 0 }
     },
-    inventory_log: [] // [{ id, type, kg, amount, date, action: 'buy'|'sell' }]
+    inventory_log: [] 
 };
 
 class Store {
     constructor() {
-        this.data = this.loadData();
+        this.data = { ...INITIAL_STATE };
+        this.docRef = db_fs.collection('appData').doc('mainStore');
+        this.isLoaded = false;
+        this.listeners = [];
+        this.init();
     }
 
-    loadData() {
-        const stored = localStorage.getItem('recyclehub_data');
-        if (stored) {
-            return JSON.parse(stored);
+    async init() {
+        // Create document if it doesn't exist
+        const snapshot = await this.docRef.get();
+        if (!snapshot.exists) {
+            await this.docRef.set(INITIAL_STATE);
         }
-        this.saveData(INITIAL_STATE);
-        return { ...INITIAL_STATE };
+
+        // Setup Realtime Listener
+        this.docRef.onSnapshot((doc) => {
+            if (doc.exists) {
+                this.data = doc.data();
+                this.isLoaded = true;
+                
+                // Notify UI to re-render
+                this.notifyListeners();
+                
+                // Keep compatibility with BroadcastChannel for older parts of the app
+                if (typeof BroadcastChannel !== 'undefined') {
+                    if (!this.bc) this.bc = new BroadcastChannel('recyclehub_sync');
+                    this.bc.postMessage({ type: 'DATA_UPDATED' });
+                }
+            }
+        });
     }
 
-    saveData(data = this.data) {
-        localStorage.setItem('recyclehub_data', JSON.stringify(data));
-        // Notify other tabs that data has changed
-        if (typeof BroadcastChannel !== 'undefined') {
-            if (!this.bc) this.bc = new BroadcastChannel('recyclehub_sync');
-            this.bc.postMessage({ type: 'DATA_UPDATED' });
-        }
+    subscribe(callback) {
+        this.listeners.push(callback);
+    }
+
+    notifyListeners() {
+        this.listeners.forEach(cb => cb());
+    }
+
+    saveData() {
+        // Prevent saving if not fully loaded yet
+        if (!this.isLoaded) return;
+        this.docRef.set(this.data, { merge: true }).catch(err => {
+            console.error("Error saving data to Firebase:", err);
+        });
     }
 
     getPrices() { 
@@ -265,7 +308,6 @@ class Store {
             date: date ? new Date(date).toISOString() : new Date().toISOString(),
             deductStock: action === 'sell' ? deductStock : true
         });
-        // We don't call saveData here as it's usually called by the parent addStock/sellStock
     }
 }
 

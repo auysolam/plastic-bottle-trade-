@@ -105,6 +105,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Initialization ---
     function initApp() {
+        if (!db.isLoaded) {
+            db.subscribe(initApp);
+            return;
+        }
+        
+        // Remove subscribe listener after it fires once so it doesn't duplicate renders heavily if not needed
+        const idx = db.listeners.indexOf(initApp);
+        if (idx > -1) db.listeners.splice(idx, 1);
+
         updatePoints();
         renderPrices();
         renderRewards();

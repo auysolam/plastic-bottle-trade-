@@ -476,6 +476,28 @@ body[data-theme="loykrathong"] .glass {
     color: var(--primary);
     border-left-color: var(--primary);
 }
+
+.nav-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--danger);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-left: 8px;
+    box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
+    min-width: 20px;
+    height: 20px;
+    line-height: 1;
+    transition: all 0.3s ease;
+}
+
+.nav-badge.hidden {
+    display: none !important;
+}
 .sidebar-footer { padding: 20px; border-top: 1px solid var(--border); }
 
 /* Tabs */

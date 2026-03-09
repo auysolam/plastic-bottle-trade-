@@ -82,6 +82,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Init
     function init() {
+        if (!db.isLoaded) {
+            db.subscribe(init);
+            return;
+        }
+        
+        // Remove subscribe listener after it fires once so we can set up the permanent one
+        const idx = db.listeners.indexOf(init);
+        if (idx > -1) db.listeners.splice(idx, 1);
+
         initMap();
         renderRequests();
         renderRedemptions();
@@ -89,6 +98,16 @@ document.addEventListener('DOMContentLoaded', () => {
         initCalculator();
         initInventory();
         initWeather();
+
+        // Listen for data updates from Firebase
+        db.subscribe(() => {
+            renderRequests();
+            renderRedemptions();
+            renderMapMarkers(); // Auto update map too!
+            if (typeof window.renderInventoryCards === 'function') {
+                window.renderInventoryCards();
+            }
+        });
     }
 
     // Ensure init is called if already authenticated (page reload)
@@ -96,20 +115,20 @@ document.addEventListener('DOMContentLoaded', () => {
         init();
     }
 
-    // Listen for data updates from other tabs
-    if (typeof BroadcastChannel !== 'undefined') {
-        const bc = new BroadcastChannel('recyclehub_sync');
-        bc.onmessage = (event) => {
-            if (event.data && event.data.type === 'DATA_UPDATED') {
-                db.data = db.loadData(); // Force reload from localStorage
-                renderRequests();
-                renderRedemptions();
-            }
-        };
-    }
-
     // --- Dashboard: Request List ---
     function renderRequests() {
+        const badge = document.getElementById('pending-requests-badge');
+        if (badge) {
+            const allRequests = db.getRequests();
+            const pendingCount = allRequests.filter(r => r.status === 'pending').length;
+            if (pendingCount > 0) {
+                badge.textContent = pendingCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
         if (!requestListContainer) return;
         
         let requests = db.getRequests();
@@ -131,7 +150,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (requests.length === 0) {
-            requestListContainer.innerHTML = '<div class="card text-center"><p class="text-muted">ไม่มีคำร้องในวันนี้</p></div>';
+            const allPending = db.getRequests().filter(r => r.status === 'pending');
+            if (allPending.length > 0) {
+                requestListContainer.innerHTML = `<div class="card text-center"><p class="text-muted">ไม่มีคำร้องในวันนี้ (มีคำร้องรอรับของวันอื่น ${allPending.length} รายการ - ลองเปลี่ยนวันที่ดูครับ)</p></div>`;
+            } else {
+                requestListContainer.innerHTML = '<div class="card text-center"><p class="text-muted">ไม่มีคำร้องในวันนี้</p></div>';
+            }
             return;
         }
 
@@ -208,8 +232,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (filterDateEl) {
-        // Default to today
-        const today = new Date().toISOString().split('T')[0];
+        // Default to today (Local Time)
+        const today = new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0];
         filterDateEl.value = today;
         filterDateEl.addEventListener('change', renderRequests);
     }

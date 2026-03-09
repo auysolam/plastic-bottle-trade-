@@ -17,7 +17,7 @@
         <aside class="sidebar">
             <div class="logo">Recycle<span class="highlight">Hub</span> <small>Admin</small></div>
             <nav class="side-nav">
-                <a href="#" class="nav-item" data-tab="dashboard">📋 แดชบอร์ดคำร้อง</a>
+                <a href="#" class="nav-item" data-tab="dashboard">📋 แดชบอร์ดคำร้อง <span id="pending-requests-badge" class="nav-badge hidden">0</span></a>
                 <a href="#" class="nav-item" data-tab="map">🗺️ แผนที่พิกัด</a>
                 <a href="#" class="nav-item" data-tab="calculator">🧮 เครื่องคิดเลข</a>
                 <a href="#" class="nav-item" data-tab="redemptions">🎁 คำขอแลกรางวัล</a>
@@ -341,6 +341,9 @@
     
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="js/store.js"></script>
     <script src="js/admin.js"></script>
 </body>

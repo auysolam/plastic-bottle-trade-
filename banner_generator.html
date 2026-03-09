@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ดาวน์โหลดป้าย แจ้งขายขวด - RecycleHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@600;800&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Kanit', sans-serif; 
+            background: #f0fdf4; 
+            text-align: center; 
+            padding: 20px; 
+            color: #0f172a;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        h1 { color: #10b981; }
+        .banner-container { 
+            margin: 30px auto; 
+            padding: 20px; 
+            background: white; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); 
+        }
+        canvas { 
+            max-width: 100%; 
+            height: auto; 
+            border-radius: 12px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn { 
+            background: #10b981; 
+            color: white; 
+            padding: 12px 24px; 
+            text-decoration: none; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            font-size: 1.1rem;
+            display: inline-block; 
+            transition: all 0.3s;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+        }
+        .btn:hover { 
+            background: #059669; 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 สร้างป้าย "แจ้งขายขวด" สำเร็จรูป</h1>
+        <p>ระบบได้สร้างป้ายกราฟิกความละเอียดสูง พร้อมฟอนต์และดีไซน์ที่ทันสมัยให้คุณแล้ว<br>คลิกที่ปุ่มดาวน์โหลดด้านล่างภาพแต่ละขนาดเพื่อนำไปใช้งานได้เลยครับ</p>
+
+        <div id="banners"></div>
+    </div>
+
+    <script>
+        // Ensure font is loaded before drawing on canvas
+        document.fonts.ready.then(function() {
+            const sizes = [
+                { w: 2500, h: 1686, label: 'ขนาดใหญ่ (2500 x 1686 พิกเซล)' },
+                { w: 1200, h: 810, label: 'ขนาดกลาง (1200 x 810 พิกเซล) - แนะนำสำหรับอัปโหลดเป็น Rich Menu' },
+                { w: 800, h: 540, label: 'ขนาดเล็ก (800 x 540 พิกเซล)' }
+            ];
+
+            const container = document.getElementById('banners');
+
+            sizes.forEach(size => {
+                // Wrapper
+                const wrapper = document.createElement('div');
+                wrapper.className = 'banner-container';
+                wrapper.innerHTML = `<h3>${size.label}</h3>`;
+
+                // Canvas
+                const canvas = document.createElement('canvas');
+                canvas.width = size.w;
+                canvas.height = size.h;
+                const ctx = canvas.getContext('2d');
+
+                // 1. Draw Background Gradient
+                const grd = ctx.createLinearGradient(0, 0, size.w, size.h);
+                grd.addColorStop(0, "#10b981"); // Vibrant Green
+                grd.addColorStop(1, "#047857"); // Darker Green
+                ctx.fillStyle = grd;
+                ctx.fillRect(0, 0, size.w, size.h);
+
+                // 2. Draw Decorative Shapes (Modern minimal style)
+                // Top left circle
+                ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+                ctx.beginPath();
+                ctx.arc(size.w * 0.1, size.h * 0.1, size.w * 0.3, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // Bottom right circle
+                ctx.beginPath();
+                ctx.arc(size.w * 0.9, size.h * 0.9, size.w * 0.4, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // Small accent circle
+                ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
+                ctx.beginPath();
+                ctx.arc(size.w * 0.8, size.h * 0.2, size.w * 0.15, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // 3. Setup text positioning
+                const centerX = size.w / 2;
+                const centerY = size.h / 2;
+
+                // 4. Draw Subtitle "RecycleHub"
+                const subtitle = "RecycleHub";
+                const subFontSize = size.h * 0.08;
+                ctx.font = `600 ${subFontSize}px Kanit`;
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillStyle = "#d1fae5"; // Very light green
+                ctx.fillText(subtitle, centerX, centerY - (size.h * 0.2));
+
+                // 5. Draw Main Text "แจ้งขายขวด"
+                const text = "แจ้งขายขวด";
+                const fontSize = size.h * 0.25;
+                ctx.font = `800 ${fontSize}px Kanit`;
+                
+                // Text Shadow
+                ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
+                ctx.fillText(text, centerX + (size.h * 0.015), centerY + (size.h * 0.03) + (size.h * 0.015));
+
+                // Text Body
+                ctx.fillStyle = "#ffffff";
+                ctx.fillText(text, centerX, centerY + (size.h * 0.03));
+
+                // 6. Draw "Click Here" button shape
+                const btnW = size.w * 0.3;
+                const btnH = size.h * 0.12;
+                const btnX = centerX - (btnW / 2);
+                const btnY = centerY + (size.h * 0.3);
+                const radius = btnH / 2;
+
+                ctx.fillStyle = "#ffffff";
+                ctx.beginPath();
+                ctx.moveTo(btnX + radius, btnY);
+                ctx.lineTo(btnX + btnW - radius, btnY);
+                ctx.quadraticCurveTo(btnX + btnW, btnY, btnX + btnW, btnY + radius);
+                ctx.lineTo(btnX + btnW, btnY + btnH - radius);
+                ctx.quadraticCurveTo(btnX + btnW, btnY + btnH, btnX + btnW - radius, btnY + btnH);
+                ctx.lineTo(btnX + radius, btnY + btnH);
+                ctx.quadraticCurveTo(btnX, btnY + btnH, btnX, btnY + btnH - radius);
+                ctx.lineTo(btnX, btnY + radius);
+                ctx.quadraticCurveTo(btnX, btnY, btnX + radius, btnY);
+                ctx.closePath();
+                ctx.fill();
+
+                // Click here text
+                ctx.fillStyle = "#10b981";
+                const clickFontSize = size.h * 0.06;
+                ctx.font = `800 ${clickFontSize}px Kanit`;
+                ctx.fillText("คลิกเพื่อทำรายการ 👉", centerX, btnY + (btnH/2));
+
+                // Append to DOM
+                wrapper.appendChild(canvas);
+                wrapper.appendChild(document.createElement('br'));
+
+                // Download Button
+                const btn = document.createElement('a');
+                btn.className = 'btn';
+                btn.href = canvas.toDataURL('image/png', 1.0);
+                btn.download = `RecycleHub_Banner_${size.w}x${size.h}.png`;
+                btn.textContent = `📥 ดาวน์โหลดภาพขนาด ${size.w}x${size.h}`;
+                
+                wrapper.appendChild(btn);
+                container.appendChild(wrapper);
+            });
+        });
+    </script>
+</body>
+</html>
