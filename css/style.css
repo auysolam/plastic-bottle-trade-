@@ -604,12 +604,24 @@ body[data-theme="loykrathong"] .weather-card {
 /* Responsive Adjustments */
 @media (max-width: 768px) {
     .admin-layout { flex-direction: column; }
-    .sidebar { width: 100%; min-height: auto; border-right: none; border-bottom: 1px solid var(--border); }
-    .side-nav { flex-direction: row; overflow-x: auto; padding: 10px; }
-    .nav-item { white-space: nowrap; border-left: none; border-bottom: 3px solid transparent; }
-    .nav-item:hover, .nav-item.active { border-left-color: transparent; border-bottom-color: var(--primary); }
-    .form-row { flex-direction: column; }
+    .sidebar { width: 100%; min-height: auto; border-right: none; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; background: var(--surface); box-shadow: var(--shadow-sm); }
+    .sidebar .logo { padding: 12px 20px; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; }
+    .side-nav { flex-direction: row; overflow-x: auto; padding: 10px 15px; gap: 10px; scrollbar-width: none; -ms-overflow-style: none; }
+    .side-nav::-webkit-scrollbar { display: none; }
+    .nav-item { white-space: nowrap; border-left: none; border-bottom: none; border-radius: 30px; padding: 8px 16px; background: var(--background); margin-bottom: 0; font-size: 0.9rem; transition: background 0.3s, color 0.3s; }
+    .nav-item:hover, .nav-item.active { border-color: transparent; background: var(--primary); color: white; box-shadow: var(--shadow-sm); }
+    .sidebar-footer { display: none; } /* Hide back to home on mobile admin to save space */
+    .form-row { flex-direction: column; gap: 10px; margin-bottom: 10px; }
     .w-50 { width: 100%; }
+    .request-card { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .req-actions { width: 100%; display: flex; gap: 10px; margin-top: 10px; }
+    .req-actions button, .req-actions span { flex: 1; justify-content: center; text-align: center; padding: 10px; }
+    .app-container { box-shadow: none; border-radius: 0; }
+    .main-content { padding: 15px; }
+    .card { padding: 18px; border-radius: 16px; }
+    .inventory-actions { flex-direction: column; align-items: stretch !important; gap: 15px; }
+    .inventory-filters { flex-direction: column; align-items: stretch !important; width: 100%; }
+    .weather-card { padding: 15px; }
 }
 
 /* --- Print & PDF Styles --- */
