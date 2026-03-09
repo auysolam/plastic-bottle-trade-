@@ -23,8 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- LIFF Initialization ---
     async function initLiff() {
         if (!LIFF_ID) {
-            console.warn("LIFF_ID is empty. Using Mock LINE Login.");
-            simulateLiffLogin();
+            console.warn("LIFF_ID is empty. Cannot initialize LINE Login properly.");
+            showLoginOverlay();
             return;
         }
 
@@ -44,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (err) {
             console.error("LIFF Init error", err);
-            // Fallback to mock on error (e.g., tested outside LINE app without valid config)
             showLoginOverlay();
         }
     }
@@ -57,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h2 style="color:var(--text-main); font-family:var(--font-family);">RecycleHub</h2>
                 <p style="color:var(--text-muted); margin-bottom:24px;">กรุณาเข้าสู่ระบบผ่านบัญชี LINE</p>
                 <button id="liff-login-btn" class="btn btn-primary w-100" style="background-color:#06C755; color:white; max-width:300px; font-weight:700;">เข้าสู่ระบบด้วย LINE</button>
-                <button id="liff-mock-btn" class="btn btn-outline w-100 mt-3" style="max-width:300px;">ทดสอบจำลอง (Mock Login)</button>
+                ${!LIFF_ID ? '<p style="color:var(--danger); margin-top:15px; font-size: 0.9rem;">⚠️ ระบบยังไม่ได้ตั้งค่า LIFF ID สำหรับใช้งาน LINE Login</p>' : ''}
             </div>
         `;
         document.body.appendChild(loginOverlay);
@@ -66,27 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if(typeof liff !== 'undefined' && LIFF_ID) {
                 liff.login();
             } else {
-                alert("เกิดข้อผิดพลาด: ไม่พบ LIFF ID หรือ SDK");
+                alert("เกิดข้อผิดพลาด: ผู้ดูแลระบบยังไม่ได้ตั้งค่า LIFF ID\n\n(สำหรับผู้ดูแลระบบ: กรุณาแก้ไขไฟล์ js/seller.js บรรทัดที่ 8 เพื่อใส่ LIFF_ID)");
             }
         });
-        
-        document.getElementById('liff-mock-btn').addEventListener('click', () => {
-            loginOverlay.remove();
-            simulateLiffLogin();
-        });
-    }
-
-    function simulateLiffLogin() {
-        const storedMockId = localStorage.getItem('mock_liff_id') || "U_mock_" + Math.floor(Math.random() * 100000);
-        localStorage.setItem('mock_liff_id', storedMockId);
-        
-        const mockProfile = {
-            userId: storedMockId,
-            displayName: "ผู้ใช้งานจำลอง",
-            pictureUrl: "https://via.placeholder.com/32/10b981/ffffff?text=U"
-        };
-        
-        handleUserLogin(mockProfile);
     }
 
     function handleUserLogin(profile) {
