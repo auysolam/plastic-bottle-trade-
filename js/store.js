@@ -44,8 +44,34 @@ class Store {
         this.listeners = [];
         this.docRef = null;
 
+        this.showLoadingOverlay();
+
         // Start initialization process, waiting for Firebase if needed
         this.waitForFirebaseAndInit();
+    }
+
+    showLoadingOverlay() {
+        if (typeof document !== 'undefined' && document.body) {
+            this.loadingOverlay = document.createElement('div');
+            this.loadingOverlay.id = 'firebase-loading-overlay';
+            this.loadingOverlay.innerHTML = `
+                <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.95);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:sans-serif;text-align:center;padding:20px;">
+                    <div id="firebase-loading-spinner" style="width:50px;height:50px;border:5px solid #f3f3f3;border-top:5px solid #28a745;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px;"></div>
+                    <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+                    <h2 style="color:#28a745; margin-bottom:10px;">กำลังเชื่อมต่อฐานข้อมูล...</h2>
+                    <p id="store-loading-status" style="color:#666; font-size:1.1rem; font-weight:bold;">โปรดรอสักครู่ (กำลังโหลด Firebase)</p>
+                    <p style="color:#999;font-size:0.9rem;margin-top:10px;">หากหน้านี้ค้างเกิน 10 วินาที แสดงว่าอินเทอร์เน็ตหลุด<br>หรือถูกบล็อกการเชื่อมต่อ (ให้ลองเปิดเว็บผ่าน Chrome / Safari แทน)</p>
+                </div>
+            `;
+            document.body.appendChild(this.loadingOverlay);
+        }
+    }
+
+    hideLoadingOverlay() {
+        if (this.loadingOverlay && this.loadingOverlay.parentNode) {
+            this.loadingOverlay.parentNode.removeChild(this.loadingOverlay);
+            this.loadingOverlay = null;
+        }
     }
 
     waitForFirebaseAndInit(attempts = 0) {
@@ -59,13 +85,23 @@ class Store {
                 this.init();
             } catch (e) {
                 console.error("Firebase init failed:", e);
-                alert("บอทเชื่อมต่อฐานข้อมูลล้มเหลว กรุณารีเฟรชหน้าเว็บ");
+                if (this.loadingOverlay) {
+                    document.getElementById('store-loading-status').innerHTML = "<span style='color:red;'>บอทเชื่อมต่อฐานข้อมูลล้มเหลว:</span><br>" + e.message;
+                    document.getElementById('firebase-loading-spinner').style.display = 'none';
+                } else {
+                    alert("บอทเชื่อมต่อฐานข้อมูลล้มเหลว กรุณารีเฟรชหน้าเว็บ");
+                }
             }
         } else {
             if (attempts < 20) { // Wait up to 10 seconds
                 setTimeout(() => this.waitForFirebaseAndInit(attempts + 1), 500);
             } else {
-                alert("ระบบฐานข้อมูล (Firebase) โหลดไม่ขึ้น โปรดตรวจสอบอินเทอร์เน็ตหรือเปิดเว็บผ่านแอปเบราว์เซอร์ปกติ");
+                if (this.loadingOverlay) {
+                    document.getElementById('store-loading-status').innerHTML = "<span style='color:red;'>หมดเวลาการเชื่อมต่อ (Timeout)</span><br>ระบบโหลด Firebase ไม่ขึ้น โปรดตรวจสอบอินเทอร์เน็ต หรือเว็บอาจจะติดแคชเวอร์ชั่นเก่า";
+                    document.getElementById('firebase-loading-spinner').style.display = 'none';
+                } else {
+                    alert("ระบบฐานข้อมูล (Firebase) โหลดไม่ขึ้น โปรดตรวจสอบอินเทอร์เน็ตหรือเปิดเว็บผ่านแอปเบราว์เซอร์ปกติ");
+                }
             }
         }
     }
@@ -76,7 +112,12 @@ class Store {
         let initialLoadTimeout = setTimeout(() => {
             if (!this.isLoaded) {
                 console.warn("Firebase took too long to load.");
-                alert("การเชื่อมต่อฐานข้อมูลล่าช้าผิดปกติ โปรดตรวจสอบอินเทอร์เน็ต หรือลองรีเฟรชหน้าเว็บอีกครั้งครับ");
+                if (this.loadingOverlay) {
+                    document.getElementById('store-loading-status').innerHTML = "<span style='color:red;'>การเชื่อมต่อฐานข้อมูลล่าช้าผิดปกติ</span><br>โปรดรีเฟรชหน้าเว็บ หากยังเป็นอยู่แสดงว่าถูกบล็อกการเชื่อมต่อ";
+                    document.getElementById('firebase-loading-spinner').style.display = 'none';
+                } else {
+                    alert("การเชื่อมต่อฐานข้อมูลล่าช้าผิดปกติ โปรดตรวจสอบอินเทอร์เน็ต หรือลองรีเฟรชหน้าเว็บอีกครั้งครับ");
+                }
             }
         }, 5000);
 
@@ -84,6 +125,7 @@ class Store {
         this.docRef.onSnapshot(
             (doc) => {
                 clearTimeout(initialLoadTimeout);
+                this.hideLoadingOverlay();
                 if (doc.exists) {
                     this.data = doc.data();
                     this.isLoaded = true;
@@ -107,7 +149,13 @@ class Store {
                 this.loadError = error.message;
                 clearTimeout(initialLoadTimeout);
                 console.error("Firebase Listener Error:", error);
-                alert("เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล! (กรุณาไปตั้งค่า Rules ใน Firebase -> allow read, write: if true;)\n\n" + error.message);
+                
+                if (this.loadingOverlay) {
+                    document.getElementById('store-loading-status').innerHTML = "<span style='color:red;'>ถูกปฏิเสธสิทธิ์ (Firebase Rules)</span><br>" + error.message;
+                    document.getElementById('firebase-loading-spinner').style.display = 'none';
+                } else {
+                    alert("เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล! (กรุณาไปตั้งค่า Rules ใน Firebase -> allow read, write: if true;)\n\n" + error.message);
+                }
             }
         );
     }
