@@ -68,9 +68,18 @@ class Store {
 
     init() {
         if (!this.docRef) return;
+        
+        let initialLoadTimeout = setTimeout(() => {
+            if (!this.isLoaded) {
+                console.warn("Firebase took too long to load.");
+                alert("การเชื่อมต่อฐานข้อมูลล่าช้าผิดปกติ โปรดตรวจสอบอินเทอร์เน็ต หรือลองรีเฟรชหน้าเว็บอีกครั้งครับ");
+            }
+        }, 5000);
+
         // Setup Realtime Listener - catches permission errors!
         this.docRef.onSnapshot(
             (doc) => {
+                clearTimeout(initialLoadTimeout);
                 if (doc.exists) {
                     this.data = doc.data();
                     this.isLoaded = true;
@@ -82,6 +91,8 @@ class Store {
                     }
                 } else {
                     // Document doesn't exist yet, create it
+                    this.isLoaded = true;
+                    this.notifyListeners();
                     this.docRef.set(INITIAL_STATE).catch(err => {
                         console.error(err);
                         alert("สร้างฐานข้อมูลไม่ได้ (ตั้งค่า Rules ของ Firebase ผิดหรือเปล่า?): " + err.message);
@@ -89,6 +100,7 @@ class Store {
                 }
             },
             (error) => {
+                clearTimeout(initialLoadTimeout);
                 console.error("Firebase Listener Error:", error);
                 alert("เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล! (กรุณาไปตั้งค่า Rules ใน Firebase -> allow read, write: if true;)\n\n" + error.message);
             }
