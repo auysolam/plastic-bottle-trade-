@@ -4,6 +4,48 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    // --- Admin Authentication (Simple Frontend Protection) ---
+    const ADMIN_PASSWORD = "1234"; // รหัสผ่านง่ายๆ สามารถเปลี่ยนได้ตามต้องการ
+    let isAuthenticated = sessionStorage.getItem('admin_auth') === 'true';
+
+    if (!isAuthenticated) {
+        const authOverlay = document.createElement('div');
+        authOverlay.innerHTML = `
+            <div style="position:fixed; top:0;left:0; right:0;bottom:0; background:var(--background); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
+                <div style="font-size:3rem; margin-bottom:16px;">🔐</div>
+                <h2 style="color:var(--text-main); font-family:var(--font-family);">เฉพาะเจ้าหน้าที่</h2>
+                <p style="color:var(--text-muted); margin-bottom:24px;">กรุณาใส่รหัสผ่านเพื่อเข้าสู่ระบบผู้รับซื้อ</p>
+                <input type="password" id="admin-pass-input" class="form-control" placeholder="รหัสผ่าน" style="max-width:300px; text-align:center; padding: 12px; margin-bottom: 15px; border: 2px solid var(--primary); border-radius: 8px; font-size: 1.2rem;">
+                <div style="display:flex; gap:10px; max-width:300px; width:100%;">
+                    <button id="admin-login-btn" class="btn btn-primary" style="flex:1;">เข้าสู่ระบบ</button>
+                    <button id="admin-cancel-btn" class="btn btn-outline" style="flex:1;">กลับหน้าหลัก</button>
+                </div>
+                <p id="admin-auth-error" style="color:var(--danger); margin-top:15px; display:none;">รหัสผ่านไม่ถูกต้อง!</p>
+            </div>
+        `;
+        document.body.appendChild(authOverlay);
+
+        document.getElementById('admin-login-btn').addEventListener('click', checkAuth);
+        document.getElementById('admin-pass-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkAuth();
+        });
+        document.getElementById('admin-cancel-btn').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        function checkAuth() {
+            const input = document.getElementById('admin-pass-input').value;
+            if (input === ADMIN_PASSWORD) {
+                sessionStorage.setItem('admin_auth', 'true');
+                authOverlay.remove();
+                init(); // Start application
+            } else {
+                document.getElementById('admin-auth-error').style.display = 'block';
+                document.getElementById('admin-pass-input').value = '';
+            }
+        }
+    }
+
     // --- Tab Navigation Setup ---
     const navItems = document.querySelectorAll('.nav-item[data-tab]');
     const tabPanes = document.querySelectorAll('.tab-pane');
@@ -47,6 +89,11 @@ document.addEventListener('DOMContentLoaded', () => {
         initCalculator();
         initInventory();
         initWeather();
+    }
+
+    // Ensure init is called if already authenticated (page reload)
+    if (isAuthenticated) {
+        init();
     }
 
     // --- Dashboard: Request List ---
