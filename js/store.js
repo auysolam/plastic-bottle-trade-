@@ -94,16 +94,8 @@ class Store {
                 }
             }
         } else {
-            if (attempts < 20) { // Wait up to 10 seconds
-                setTimeout(() => this.waitForFirebaseAndInit(attempts + 1), 500);
-            } else {
-                if (this.loadingOverlay) {
-                    document.getElementById('store-loading-status').innerHTML = "<span style='color:red;'>หมดเวลาการเชื่อมต่อ (Timeout)</span><br>ระบบโหลด Firebase ไม่ขึ้น โปรดตรวจสอบอินเทอร์เน็ต หรือเว็บอาจจะติดแคชเวอร์ชั่นเก่า";
-                    document.getElementById('firebase-loading-spinner').style.display = 'none';
-                } else {
-                    alert("ระบบฐานข้อมูล (Firebase) โหลดไม่ขึ้น โปรดตรวจสอบอินเทอร์เน็ตหรือเปิดเว็บผ่านแอปเบราว์เซอร์ปกติ");
-                }
-            }
+            // Keep trying indefinitely (every 1 second) for slow mobile connections
+            setTimeout(() => this.waitForFirebaseAndInit(attempts + 1), 1000);
         }
     }
 
