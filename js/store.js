@@ -3,13 +3,14 @@
  */
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCg9st5AQQQi81qHLhPswRf62H4VKLQZao",
-  authDomain: "recyclehub-21cac.firebaseapp.com",
-  projectId: "recyclehub-21cac",
-  storageBucket: "recyclehub-21cac.firebasestorage.app",
-  messagingSenderId: "399507336057",
-  appId: "1:399507336057:web:4d8f295d1eae1cdcc9dda8",
-  measurementId: "G-2FS27V1XF7"
+  apiKey: "AIzaSyDGqTn25emW9oxLFyOEMIYHxsaabTRKioo",
+  authDomain: "recyclehub-57fe7.firebaseapp.com",
+  databaseURL: "https://recyclehub-57fe7-default-rtdb.firebaseio.com",
+  projectId: "recyclehub-57fe7",
+  storageBucket: "recyclehub-57fe7.firebasestorage.app",
+  messagingSenderId: "977227579990",
+  appId: "1:977227579990:web:a712f205a5f421b2be31f7",
+  measurementId: "G-TCFWER3R8K"
 };
 
 const INITIAL_STATE = {
